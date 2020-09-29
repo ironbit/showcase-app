@@ -2,7 +2,7 @@
 
 ## Applications
 
-* Typeahead - Golang
+* [Typeahead - Golang](./typeahead-golang)
 
 ## Typeahead - Golang
 It's a server side implementation of a typeahead functionality using golang language programming. It uses Rest API in order to communicate with the server.
