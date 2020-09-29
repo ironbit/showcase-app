@@ -1,0 +1,99 @@
+openapi: "3.0.0"
+
+info:
+  version: 1.0.0
+  title: typeahead-golang
+  license:
+    name: MIT
+
+paths:
+  /typeahead:
+    description: Access typeahead functionality in the server.
+    get:
+      summary: Retrieve a list of names.
+      description: |
+        Access to the whole list of names.
+        The list is ordered based on the maximum 'times' parameter.
+        The size of the list will be according to an input parameter of the application. 
+      responses:
+        "400":
+          description: Any problem generated in the request.
+        "200":
+          description: Successful request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Suggestion"
+    post:
+      summary: increment in one a name in the list.
+      description: |
+        It's used to modified the "times" counter related with a name.
+        The "times" counter will be incremented in 1 for a specific name.
+        The name will be an exact name contained in the list.
+      requestBody:
+        description: The name parameter.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Name"
+      responses:
+        "400":
+          description: Any problem generated in the request.
+        "200":
+          description: Successful request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Suggestion"
+
+  /typeahead/{prefix}:
+    description: Access typeahead functionality in the server for a prefix name
+    get:
+      summary: Retrieve a list of names using a prefix.
+      description: |
+        Access to a list of names using a prefix.
+        The list is ordered based on the maximum 'times' parameter.
+        The size of the list will be according to an input parameter of the application or 
+        the number of names that match the prefix.
+        Whether the prefix match a name, then the name will be the first name in the list.
+      parameters:
+        - name: prefix
+          in: path
+          required: true
+          description: name's reference
+          schema:
+            type: string
+      responses:
+        "400":
+          description: Any problem generated in the request.
+        "200":
+          description: Successful request.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Suggestion"
+
+components:
+  schemas:
+    Name:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "Mary Jane"
+    Suggestion:
+      required:
+        - name
+        - times
+      properties:
+        name:
+          type: string
+          example: "Sophia"
+        times:
+          type: integer
+          example: 452
