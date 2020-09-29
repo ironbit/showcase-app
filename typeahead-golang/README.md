@@ -91,13 +91,13 @@ The worst and common case is when the prefix is an empty string; for that case w
 1. Set the following enviromental variables:
 ```bash
 $ export PORT=12345
-$ export FILE_NAME=data/names.json
+$ export FILE_NAME=../data/names.json
 $ export SUGGESTION_NUMBER=5
 ```
 
-2. In 'typeahead-golang' folder, execute the application:
+2. In 'typeahead-golang/app' folder, execute the application:
 ```bash
-$ go run app/main/main.go
+$ go run main/main.go
 ```
 
 ### Using Virtual Machine (Docker)
