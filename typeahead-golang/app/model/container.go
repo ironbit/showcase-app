@@ -3,10 +3,11 @@ package model
 import (
 	"fmt"
 	"log"
-	"sketch-app/typeahead-golang/app/data"
 	"sync"
 
 	"github.com/armon/go-radix"
+
+	"sketch-app/typeahead-golang/app/data"
 )
 
 // container is a 'static' variable used by the models.
