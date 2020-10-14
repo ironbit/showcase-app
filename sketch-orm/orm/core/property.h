@@ -54,7 +54,8 @@ public:
 
 	template <typename Type>
 	Property& operator()(const std::string& attribute, Type&& value) {
-		return operator()(attribute, value);
+		mProperties[attribute] = orm::core::Scalar{value};
+		return *this;
 	}
 
 	template <typename Type>
@@ -64,6 +65,8 @@ public:
 	}
 
 public:
+	Property& operator()(const std::string& attribute, orm::core::Scalar&& scalar);
+
 	Property& operator()(const std::string& attribute, const orm::core::Scalar& scalar);
 
 	Property& operator()(std::vector<std::pair<std::string, orm::core::Scalar>>&& data);

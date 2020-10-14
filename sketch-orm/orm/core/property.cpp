@@ -17,6 +17,11 @@ Property::Property(const std::vector<std::pair<std::string, orm::core::Scalar>>&
 	populate(data);
 }
 
+Property& Property::operator()(const std::string& attribute, orm::core::Scalar&& scalar) {
+	populate(attribute, scalar);
+	return *this;
+}
+
 Property& Property::operator()(const std::string& attribute, const orm::core::Scalar& scalar) {
 	populate(attribute, scalar);
 	return *this;
