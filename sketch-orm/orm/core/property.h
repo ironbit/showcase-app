@@ -1,25 +1,17 @@
 #ifndef ORM_CORE_PROPERTY
 #define ORM_CORE_PROPERTY
 
-#include <any>
 #include <map>
 #include <memory>
 #include <vector>
 
-#include "orm/core/types.h"
+#include "orm/core/token.h"
+#include "orm/core/scalar.h"
 
 namespace orm::core {
 
 /**
- * Future development.
- * store the value and the type. 
- */
-struct Data {
-	std::any value;
-	orm::core::Types type;
-};
-
-/**
+ * REQUIRE DOC UPDATE
  * Adapter class used to gather information (literal and no literal).
  * It can be used in two modalities:
  * Property("attribute 1", 1234)("attribute 2", "sample")
@@ -27,23 +19,29 @@ struct Data {
  */
 class Property {
 public:
-	Property() {}
+	Property();
 
-	Property(std::vector<std::pair<std::string, std::any>>&& data) {
-		populate(data);
-	}
+	Property(Property&& property);
 
-	Property(const std::vector<std::pair<std::string, std::any>>& data) {
-		populate(data);
+public:
+	template <typename T>
+	Property(const std::string& attribute, const T& data) {
+		populate(attribute, data);
 	}
 
 public:
-	template <typename Type>
-	Property& operator()(const std::string& attribute, const Type& value) {
-		mProperties[attribute] = value;
-		return *this;
-	}
+	Property(std::vector<std::pair<std::string, orm::core::Scalar>>&& data);
 
+	Property(const std::vector<std::pair<std::string, orm::core::Scalar>>& data);
+
+public:
+	Property(const Property&) = delete;
+
+	Property& operator=(Property&&) = delete;
+
+	Property& operator=(const Property&) = delete;
+
+public:
 	template <typename Type>
 	Property& operator()(std::string&& attribute, Type&& value) {
 		return operator()(attribute, value);
@@ -56,44 +54,41 @@ public:
 
 	template <typename Type>
 	Property& operator()(const std::string& attribute, Type&& value) {
-		mProperties[attribute] = value;
-		return *this;
+		return operator()(attribute, value);
 	}
 
-	Property& operator()(std::vector<std::pair<std::string, std::any>>&& data) {
-		populate(data);
-		return *this;
-	}
-
-	Property& operator()(const std::vector<std::pair<std::string, std::any>>& data) {
-		populate(data);
+	template <typename Type>
+	Property& operator()(const std::string& attribute, const Type& value) {
+		mProperties[attribute] = orm::core::Scalar{value};
 		return *this;
 	}
 
 public:
-	std::any get(const std::string& attribute) {
-		return mProperties[attribute];
-	}
+	Property& operator()(const std::string& attribute, const orm::core::Scalar& scalar);
 
-	std::vector<std::string> attributes() {
-		std::vector<std::string> outcome;
-		outcome.reserve(mProperties.size());
-		for (auto it = mProperties.begin(); it != mProperties.end(); ++it) {
-			outcome.push_back(it->first);
-		}
-		return outcome;
-	}
+	Property& operator()(std::vector<std::pair<std::string, orm::core::Scalar>>&& data);
+
+	Property& operator()(const std::vector<std::pair<std::string, orm::core::Scalar>>& data);
+
+public:
+	std::size_t size();
+
+	std::vector<std::string> attributes();
+
+	orm::core::Scalar get(const std::string& attribute);
 
 protected:
-	void populate(const std::vector<std::pair<std::string, std::any>>& data) {
-		for (auto& pair : data) {
-			mProperties[pair.first] = pair.second;
-		}
+	template <typename T>
+	void populate(const std::string& attribute, const T& data) {
+		mProperties[attribute] = Scalar{data};
 	}
 
+	void populate(const std::string& attribute, const orm::core::Scalar& data);
+
+	void populate(const std::vector<std::pair<std::string, orm::core::Scalar>>& data);
+
 private:
-	std::map<std::string, std::any> mProperties;
-	//std::map<std::string, std::pair<std::any, std::any>> mRanges;
+	std::map<std::string, orm::core::Scalar> mProperties;
 };
 
 /**
@@ -106,9 +101,8 @@ private:
  * @param  value  attribute value.
  */ 
 template <typename Type>
-Property property(std::string&& key, Type&& value) {
-	Property record;
-	return record(key, value);
+Property GenProperty(std::string&& key, Type&& value) {
+	return Property(key, value);
 }
 
 /**
@@ -121,9 +115,8 @@ Property property(std::string&& key, Type&& value) {
  * @param  value  attribute value.
  */ 
 template <typename Type>
-Property property(const std::string& key, Type&& value) {
-	Property record;
-	return record(key, value);
+Property GenProperty(const std::string& key, Type&& value) {
+	return Property(key, value);
 }
 
 /**
@@ -133,7 +126,7 @@ Property property(const std::string& key, Type&& value) {
  * 
  * @param  data  an array of pairs, which content an attribute namme and value. 
  */ 
-Property property(std::vector<std::pair<std::string, std::any>>&& data);
+Property GenProperty(std::vector<std::pair<std::string, orm::core::Scalar>>&& data);
 
 /**
  * Helper function for the Property class.
@@ -142,7 +135,7 @@ Property property(std::vector<std::pair<std::string, std::any>>&& data);
  * 
  * @param  data  an array of pairs, which content an attribute namme and value. 
  */ 
-Property property(const std::vector<std::pair<std::string, std::any>>& data);
+Property GenProperty(const std::vector<std::pair<std::string, orm::core::Scalar>>& data);
 
 /**
  * Factory method called "generate property" object.
@@ -151,7 +144,7 @@ Property property(const std::vector<std::pair<std::string, std::any>>& data);
  * @param  data  list of pairs, which content an attribute and a value.
  * @return       shared pointer of property type.
  */
-std::shared_ptr<Property> genprop(std::vector<std::pair<std::string, std::any>>&& data);
+std::shared_ptr<Property> GenShareProperty(std::vector<std::pair<std::string, orm::core::Scalar>>&& data);
 
 /**
  * Factory method called "generate property" object.
@@ -160,7 +153,7 @@ std::shared_ptr<Property> genprop(std::vector<std::pair<std::string, std::any>>&
  * @param  data  list of pairs, which content an attribute and a value.
  * @return       shared pointer of property type.
  */
-std::shared_ptr<Property> genprop(const std::vector<std::pair<std::string, std::any>>& data);
+std::shared_ptr<Property> GenShareProperty(const std::vector<std::pair<std::string, orm::core::Scalar>>& data);
 
 
 // template <typename T, typename U>

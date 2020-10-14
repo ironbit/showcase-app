@@ -1,9 +1,9 @@
-#ifndef ORM_CORE_TYPES
-#define ORM_CORE_TYPES
+#ifndef ORM_CORE_TOKEN
+#define ORM_CORE_TOKEN
 
 namespace orm::core {
 
-enum class Types {
+enum class Token {
 	Integer32,
 	Integer64,
 	Float32,
