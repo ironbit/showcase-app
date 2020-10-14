@@ -87,6 +87,9 @@ decltype(auto) applier(orm::core::Token token, Functor functor, Args&& ... args)
 			return functor.template operator()<MapType<Token::Float64>>(std::forward<Args>(args)...);
 		case Token::String:
 			return functor.template operator()<MapType<Token::String>>(std::forward<Args>(args)...);
+		default:
+			using Type = decltype(functor.template operator()<MapType<Token::Integer32>>(std::forward<Args>(args)...));
+			return Type{};
 	}
 }
 
