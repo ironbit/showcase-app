@@ -15,7 +15,7 @@ struct Coder {
 	}
 
 	template <typename U, typename V>
-	void decode(U& u, V& v) {
+	void decode(U& u, const V& v) {
 		static_cast<T*>(this)->decode(u, v);
 	}
 };
