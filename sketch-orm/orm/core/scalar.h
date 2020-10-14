@@ -1,7 +1,6 @@
 #ifndef ORM_CORE_SCALAR
 #define ORM_CORE_SCALAR
 
-#include <any>
 #include <variant>
 
 #include "orm/core/mapper.h"
@@ -13,11 +12,20 @@ class Scalar {
 public:
 	Scalar();
 
+public:
 	template <typename T>
 	Scalar(const T& data)
 	 : mValue{data}, mToken{MapToken<T>}
 	{ }
 
+public:
+	Scalar(const char* data);
+
+	Scalar(std::string&& data);
+
+	Scalar(const std::string& data);
+
+public:
 	template <typename T>
 	decltype(auto) To() {
 		return std::get<T>(mValue);
