@@ -3,87 +3,24 @@
 #include <memory>
 #include <cstring>
 
-#include "orm/core/cast.h"
-#include "orm/core/coder.h"
-#include "orm/core/entity.h"
 #include "orm/store/store.h"
 #include "orm/store_mark/store.h"
+#include "orm/store_test/person.h"
 
 using ::testing::Return;
 
-class PersonCoder;
-
-class Person : public orm::core::Entity {
-public:
-	using Coder = PersonCoder;
-
-public:
-	Person(std::int32_t identity)
-	: mIdentity{identity}
-	{ }
-
-	std::int64_t identity() const {
-		return mIdentity;
-	}
-
-	std::string& name() {
-		return mName;
-	}
-
-	std::int32_t& age() {
-		return mAge;
-	}
-
-	double& height() {
-		return mHeight;
-	}
-
-private:
-	std::int64_t mIdentity;
-	std::string  mName;
-	std::int32_t mAge;
-	double       mHeight;
-};
-
-class PersonCoder : public orm::core::Coder<PersonCoder> {
-public:
-	inline static const std::string Age = "age";
-	inline static const std::string Name = "name";
-	inline static const std::string Height = "height";
-
-public:
-	std::shared_ptr<orm::core::Property> encode(Person& person) {
-		auto outcome = std::make_shared<orm::core::Property>();
-		(*outcome)(Age, person.age());
-		(*outcome)(Name, person.name());
-		(*outcome)(Height, person.height());
-		return outcome;
-	}
-
-	void decode(Person& person, std::shared_ptr<orm::core::Property>& properties) {
-		person.age() = std::any_cast<std::int32_t>(properties->get(Age));
-		person.name() = std::any_cast<std::string>(properties->get(Name));
-		person.height() = std::any_cast<double>(properties->get(Height));
-	}
-};
-
 MATCHER_P(CompareProperty, expected, "") {
 	try {
-		auto data = static_cast<std::shared_ptr<orm::core::Property>>(arg);
-		if (std::any_cast<std::int32_t>(arg->get(PersonCoder::Age)) != std::any_cast<std::int32_t>(expected->get(PersonCoder::Age))) {
-			return false;
+		for (const auto& attribute : PersonCoder::attributes) {
+			if (!(arg->get(attribute) == expected->get(attribute))) {
+				return false;
+			}
 		}
-		if (std::any_cast<std::string>(arg->get(PersonCoder::Name)) != std::any_cast<std::string>(expected->get(PersonCoder::Name))) {
-			return false;
-		}
-		if (std::any_cast<double>(arg->get(PersonCoder::Height)) != std::any_cast<double>(expected->get(PersonCoder::Height))) {
-			return false;
-		}
-	} catch (const std::bad_any_cast& e) {
-		std::cout << "bad cast: " << e.what() << std::endl;
+		return true;
+	} catch(const std::bad_variant_access& e) {
+		std::cerr << e.what() << std::endl;
 		return false;
 	}
-	return true;
 }
 
 class StoreInterfaceTest : public ::testing::Test {
@@ -94,6 +31,8 @@ public:
 	const std::string NAME = "Christian";
 	const double HEIGHT = 1.80;
 };
+
+using ::testing::Matcher;
 
 TEST_F(StoreInterfaceTest, EncodeTest) {
 	// retrieve mock
@@ -107,10 +46,12 @@ TEST_F(StoreInterfaceTest, EncodeTest) {
 	person.height() = HEIGHT;
 	
 	// create expected result
-	auto expectedProperty = orm::core::genprop({{PersonCoder::Age, AGE},{PersonCoder::Name, NAME},{PersonCoder::Height, HEIGHT}});
+	auto expectedProperty = orm::core::GenShareProperty({{PersonCoder::Age, AGE},
+	                                                     {PersonCoder::Name, NAME},
+	                                                     {PersonCoder::Height, HEIGHT}});
 
 	// test
-	EXPECT_CALL(mock, insert(ID, CompareProperty(expectedProperty)));
+	EXPECT_CALL(mock, insert(ID, Matcher<std::shared_ptr<orm::core::Property>&&>(CompareProperty(expectedProperty))));
 
 	// execute main action
 	store->insert(person);
@@ -125,18 +66,20 @@ TEST_F(StoreInterfaceTest, DecodeTest) {
 	Person person(ID);
 	
 	// create expected result
-	auto expectedProperty = orm::core::genprop({{PersonCoder::Age, AGE},{PersonCoder::Name, NAME},{PersonCoder::Height, HEIGHT}});
+	auto expectedProperty = orm::core::GenShareProperty({{PersonCoder::Age, AGE},
+	                                                     {PersonCoder::Name, NAME},
+	                                                     {PersonCoder::Height, HEIGHT}});
 
 	// mock value
 	EXPECT_CALL(mock, query(ID))
-							.WillOnce(Return(expectedProperty));
+	           .WillOnce(Return(expectedProperty));
 
 	// execute main action
 	store->query(person);
 
 	// test populated object
-	ASSERT_THAT(person.identity(), ID);
-	ASSERT_THAT(person.age(), AGE);
-	ASSERT_THAT(person.name(), NAME);
-	ASSERT_THAT(person.height(), HEIGHT);
+	ASSERT_TRUE(person.identity() == ID);
+	ASSERT_TRUE(person.age() == AGE);
+	ASSERT_TRUE(person.name() == NAME);
+	ASSERT_TRUE(person.height() == HEIGHT);
 }
