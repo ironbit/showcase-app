@@ -5,4 +5,4 @@ set(DATABASE_TEST
 		"${CMAKE_SOURCE_DIR}/orm/core/property.cpp"
 		"${CMAKE_SOURCE_DIR}/orm/database_mark/database.cpp")
 
-fnConfigTest(DATABASE_TEST "${DATABASE_TEST}")
+fnConfigTest(DATABASE_TEST "${DATABASE_TEST}" "")
