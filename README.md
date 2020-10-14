@@ -2,7 +2,25 @@
 
 ## Applications
 
+* [ORM - CPP](./orm-cpp)
 * [Typeahead - Golang](./typeahead-golang)
+
+---
+
+## ORM C++
+It presents a simple interface for an ORM (Object Relational Mapper) implemented in C++.
+
+The goals of this design are:
+* Present a clean and straightforward interface.
+* Be used on the server side (concurrent).
+
+The packages used are:
+* CMake
+* C++ 17
+* Google Test
+* Google Mock
+
+---
 
 ## Typeahead - Golang
 It's a server side implementation of a typeahead functionality using golang language programming. It uses Rest API in order to communicate with the server.
