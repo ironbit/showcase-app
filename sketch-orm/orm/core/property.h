@@ -155,19 +155,6 @@ std::shared_ptr<Property> GenShareProperty(std::vector<std::pair<std::string, or
  */
 std::shared_ptr<Property> GenShareProperty(const std::vector<std::pair<std::string, orm::core::Scalar>>& data);
 
-
-// template <typename T, typename U>
-// Property property(std::string&& key, T&& valueT, U&& valueU) {
-// 	Property property;
-// 	return property(key, valueT, valueU);
-// }
-
-// template <typename T, typename U>
-// Property property(const std::string& key, T&& valueT, U&& valueU) {
-// 	Property property;
-// 	return property(key, valueT, valueU);
-// }
-
 } // orm::core namespace
 
 #endif

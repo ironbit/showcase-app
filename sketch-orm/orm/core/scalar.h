@@ -24,7 +24,7 @@ public:
 	}
 
 private:
-	using variant = std::variant<std::int32_t, std::int64_t, float, double, std::string>;
+	using variant = std::variant<std::int32_t, std::int64_t, float, double, const char*>;
 	variant mValue;
 	Token   mToken;
 

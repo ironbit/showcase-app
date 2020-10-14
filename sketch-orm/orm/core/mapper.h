@@ -35,7 +35,7 @@ struct MapTokenToType<Token::Float64> {
 
 template <>
 struct MapTokenToType<Token::String> {
-	using Type = std::string;
+	using Type = const char*;
 };
 
 template <orm::core::Token T>
@@ -66,7 +66,7 @@ struct MapTypeToToken<double> {
 };
 
 template <>
-struct MapTypeToToken<std::string> {
+struct MapTypeToToken<const char*> {
 	static constexpr orm::core::Token Token = orm::core::Token::String;
 };
 
