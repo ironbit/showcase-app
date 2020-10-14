@@ -8,7 +8,7 @@
 ---
 
 ## ORM C++
-It presents a simple interface for an ORM (Object Relational Mapper) implemented in C++.
+It presents a simple interface for an ORM (Object Relational Mapping) implemented in C++.
 
 The goals of this design are:
 * Present a clean and straightforward interface.
