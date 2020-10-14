@@ -8,31 +8,41 @@
 
 #include "orm/core/coder.h"
 #include "orm/core/property.h"
-#include "orm/core/types.h"
 
 namespace orm::store {
-
-// class Store;
-
-// class Functor {
-// public:
-// 	virtual void operator()(Store* store) = 0;
-// };
 
 class Store {
 public:
 	virtual ~Store() {}
 
 public:
-	virtual std::shared_ptr<orm::core::Property> query(std::int64_t identity) = 0;
+	virtual std::shared_ptr<orm::core::Property> query(std::int64_t identity = 0) = 0;
+
+	virtual bool commit() = 0;
+
+public:
+	virtual std::shared_ptr<orm::core::Property> fetch() = 0;
 
 	virtual bool insert(std::int64_t identity, std::shared_ptr<orm::core::Property>&& record) = 0;
 
-	virtual bool update(std::int64_t identity, orm::core::Property&& record) = 0;
+	virtual bool insert(std::int64_t identity, const std::shared_ptr<orm::core::Property>& record) = 0;
+
+	virtual bool update(std::int64_t identity, std::shared_ptr<orm::core::Property>&& record) = 0;
+
+	virtual bool update(std::int64_t identity, const std::shared_ptr<orm::core::Property>& record) = 0;
 
 	virtual bool remove(std::int64_t identity) = 0;
 
 public:
+	virtual std::unique_ptr<Store> clone() = 0;
+
+public:
+	template <typename T>
+	void query(T& object) {
+		orm::core::Coder<typename T::Coder> coder;
+		coder.decode(object, query(object.identity()));
+	}
+
 	template <typename T>
 	bool insert(T& object) {
 		orm::core::Coder<typename T::Coder> coder;
@@ -40,28 +50,10 @@ public:
 	}
 
 	template <typename T>
-	void query(T& object) {
-		auto properties = query(object.identity());
-
+	bool update(T& object) {
 		orm::core::Coder<typename T::Coder> coder;
-		coder.decode(object, properties);
+		return update(object.identity(), coder.encode(object));
 	}
-	
-// public:
-// 	virtual std::vector<std::shared_ptr<Store>> queryRange(std::int64_t min, std::int64_t max) = 0;
-// 	virtual std::vector<std::shared_ptr<Store>> queryRange(std::string attribute, orm::core::Types types, std::any&& minValue, std::any&& maxValue) = 0;
-
-public:
-	virtual bool commit() = 0;
-	
-public:
-	virtual std::unique_ptr<Store> clone() = 0;
-
-// public:
-// 	virtual void setOnUpdateFunctor(Functor&& functor) = 0;
-
-// public:
-// 	virtual void onUpdate() = 0;
 };
 
 } // orm::store namespace
