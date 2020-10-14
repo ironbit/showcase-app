@@ -13,14 +13,20 @@ public:
 public:
 	std::shared_ptr<orm::core::Property> query (std::int64_t identity) override;
 
-	bool insert(std::int64_t identity, std::shared_ptr<orm::core::Property>&& record) override;
-
-	bool update(std::int64_t identity, orm::core::Property&& record) override;
-
-	bool remove(std::int64_t identity) override;
+	bool commit () override;
 
 public:
-	bool commit () override;
+	std::shared_ptr<orm::core::Property> fetch() override;
+
+	bool insert(std::int64_t identity, std::shared_ptr<orm::core::Property>&& record) override;
+
+	bool insert(std::int64_t identity, const std::shared_ptr<orm::core::Property>& record) override;
+
+	bool update(std::int64_t identity, std::shared_ptr<orm::core::Property>&& record) override;
+
+	bool update(std::int64_t identity, const std::shared_ptr<orm::core::Property>& record) override;
+
+	bool remove(std::int64_t identity) override;
 	
 public:
 	std::unique_ptr<orm::store::Store> clone() override;
