@@ -3,6 +3,7 @@
 
 #include <any>
 #include <map>
+#include <memory>
 #include <vector>
 
 #include "orm/core/types.h"
@@ -142,6 +143,24 @@ Property property(std::vector<std::pair<std::string, std::any>>&& data);
  * @param  data  an array of pairs, which content an attribute namme and value. 
  */ 
 Property property(const std::vector<std::pair<std::string, std::any>>& data);
+
+/**
+ * Factory method called "generate property" object.
+ * genprop({{"attribute 1", value 1},{"attribute 2", value 2},...)
+ *
+ * @param  data  list of pairs, which content an attribute and a value.
+ * @return       shared pointer of property type.
+ */
+std::shared_ptr<Property> genprop(std::vector<std::pair<std::string, std::any>>&& data);
+
+/**
+ * Factory method called "generate property" object.
+ * genprop({{"attribute 1", value 1},{"attribute 2", value 2},...)
+ *
+ * @param  data  list of pairs, which content an attribute and a value.
+ * @return       shared pointer of property type.
+ */
+std::shared_ptr<Property> genprop(const std::vector<std::pair<std::string, std::any>>& data);
 
 
 // template <typename T, typename U>
