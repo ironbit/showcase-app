@@ -1,4 +1,5 @@
 #include "orm/core/scalar.h"
+#include <cstring>
 
 namespace orm::core {
 
@@ -17,6 +18,11 @@ Scalar::Scalar(std::string&& data)
 Scalar::Scalar(const std::string& data)
  : mValue{(const char*)data.c_str()}, mToken{Token::String}
 { }
+
+template <>
+bool Compare::operator()<const char*>(const Scalar& lhs, const Scalar& rhs) {
+	return (std::strcmp(std::get<const char*>(lhs.mValue), std::get<const char*>(rhs.mValue)) == 0);
+}
 
 bool operator==(const Scalar& lhs, const Scalar& rhs) {
 	if (lhs.mToken != rhs.mToken) {
